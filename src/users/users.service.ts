@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { User } from './entities/users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
+  private users: User[] = [
+    {
+      id: 1,
+      dob: 1992,
+      name: 'Pravin',
+      tier: 'Premium',
+    },
+  ];
 
-  findAll() {
-    return `This action returns all users`;
+  findAll(offset: number, limit: number) {
+    console.log(`get users from DB from offset ${offset} and limit ${limit}`);
+    return this.users;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} user`;
+    const user = this.users.find((item) => item.id === +id);
+    if (!user) {
+      throw new HttpException(`User ${id} not found`, HttpStatus.NOT_FOUND);
+    }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  create(user: any) {
+    this.users.push(user);
+    return `User ${user.id} Created`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  update(id: number, user: CreateUserDto) {
+    const userIndex = this.users.findIndex((item) => item.id === +id);
+    if (userIndex < 0) {
+      throw new HttpException(`User ${id} not found`, HttpStatus.NOT_FOUND);
+    }
+    // this.users[userIndex] = user;
+    return user;
+  }
+
+  delete(id: number) {
+    const userIndex = this.users.findIndex((item) => item.id === +id);
+    if (userIndex < 0) {
+      throw new HttpException(`User ${id} not found`, HttpStatus.NOT_FOUND);
+    }
+    this.users.splice(userIndex, 0);
+    return `User ${id} Deleted`;
   }
 }
